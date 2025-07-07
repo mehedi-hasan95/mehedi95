@@ -5,9 +5,9 @@ const SignUp = async () => {
   return (
     <AuthWrapper
       backHref="/sign-in"
-      backLabel="Sign up here"
+      backLabel="Sign in here"
       backTitle="Already have an account? "
-      headerDescription="Sign un to continue"
+      headerDescription="Sign up to continue"
       headerTitle="Welcome Back"
       showSocial={false}
     >
