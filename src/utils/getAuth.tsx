@@ -1,11 +1,9 @@
-import { getSession, useSession } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-export const useAuthSession = () => {
-  const { data, isPending, error, refetch } = useSession();
-  return { data, isPending, error, refetch };
-};
-
-export const getAuthSession = async () => {
-  const { data, error } = await getSession();
-  return { data, error };
+export const getAuth = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(), // you need to pass the headers object.
+  });
+  return session;
 };
