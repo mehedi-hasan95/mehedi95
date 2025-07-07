@@ -15,9 +15,9 @@ datasource db {
 }
 
 enum userRole {
-  SUPER_ADMIN
-  ADMIN
-  USER
+  super_admin
+  admin
+  user
 }
 
 model User {
@@ -34,7 +34,7 @@ model User {
   username        String
   displayUsername String?
 
-  role       userRole  @default(USER)
+  role       userRole  @default(user)
   banned     Boolean?
   banReason  String?
   banExpires DateTime?

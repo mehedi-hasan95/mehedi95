@@ -16,7 +16,13 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
+import { LoadingButton } from "@/components/common/loading-button";
+import { toast } from "sonner";
+import { signIn } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 export const SignInForm = () => {
+  const router = useRouter();
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [showPw, setShowPw] = useState(false);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -27,10 +33,30 @@ export const SignInForm = () => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    await signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onRequest: () => {
+          setLoading(true);
+        },
+        onSuccess: () => {
+          toast("Login success");
+          setLoading(false);
+        },
+        onError: (e) => {
+          toast(e.error.message);
+          if (e.error.status === 403) {
+            router.push(`/email-verify?email=${values.email}`);
+          }
+          setLoading(false);
+        },
+      }
+    );
   }
   return (
     <Form {...form}>
@@ -93,6 +119,7 @@ export const SignInForm = () => {
           <label className="flex items-center space-x-2 text-gray-300">
             <input
               type="checkbox"
+              defaultChecked
               className="rounded bg-black/30 border-sky-500/30 text-sky-400 focus:ring-sky-400/40"
             />
             <span>Remember me</span>
@@ -105,12 +132,16 @@ export const SignInForm = () => {
             Forgot password?
           </Link>
         </div>
-        <Button
-          className="w-full bg-gradient-to-r from-sky-700 to-sky-600 hover:from-sky-700/80 hover:to-sky-600/70 text-white font-semibold py-2.5 shadow-lg hover:shadow-xl"
-          type="submit"
-        >
-          Submit
-        </Button>
+        {isLoading ? (
+          <LoadingButton className="w-full bg-gradient-to-r from-sky-700 to-sky-600 hover:from-sky-700/80 hover:to-sky-600/70 text-white font-semibold py-2.5 shadow-lg hover:shadow-xl" />
+        ) : (
+          <Button
+            className="w-full bg-gradient-to-r from-sky-700 to-sky-600 hover:from-sky-700/80 hover:to-sky-600/70 text-white font-semibold py-2.5 shadow-lg hover:shadow-xl"
+            type="submit"
+          >
+            Login
+          </Button>
+        )}
       </form>
     </Form>
   );
