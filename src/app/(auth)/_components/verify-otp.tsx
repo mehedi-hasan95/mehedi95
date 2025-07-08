@@ -44,7 +44,7 @@ export const VerifyOtp = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
