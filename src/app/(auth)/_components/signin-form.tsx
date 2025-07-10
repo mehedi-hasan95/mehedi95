@@ -21,14 +21,12 @@ import { toast } from "sonner";
 import { authClient, signIn } from "@/lib/auth-client";
 import { ResetEmailForm } from "./resetEmailForm";
 import { VerifyOtp } from "./verify-otp";
-import { useRouter } from "next/navigation";
 export const SignInForm = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showPw, setShowPw] = useState(false);
   const [step, setStep] = useState<"login" | "otp" | "verify">("login");
   const [otp, setOTP] = useState<string>("");
   const [getEmail, setGetEmail] = useState("");
-  const router = useRouter();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -53,6 +51,7 @@ export const SignInForm = () => {
           toast("Login success");
           setGetEmail(values.email);
           setLoading(false);
+          window.location.reload();
         },
         onError: (e) => {
           toast(e.error.message);
@@ -100,13 +99,12 @@ export const SignInForm = () => {
         },
         onSuccess: () => {
           setLoading(false);
-          router.push("/sign-in");
         },
       }
     );
     if (data?.status === true) {
       toast("User verified successfully");
-      router.push("/sign-in");
+      setStep("login");
     } else {
       toast.error(error?.message);
     }

@@ -25,13 +25,13 @@ model User {
   name          String
   email         String
   emailVerified Boolean
-  image         String?
+  image         String    @default("https://github.com/shadcn.png")
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
 
-  username        String
+  username        String?
   displayUsername String?
 
   role       userRole  @default(user)
