@@ -56,3 +56,8 @@ export const updatePasswordSchema = z
     message: "passwords do not match",
     path: ["confirmPassword"],
   });
+
+export const resetPasswordSchema = z.object({
+  password: z.string({ message: "Password is required" }),
+  otp: z.string({ message: "OTP is required" }),
+});
