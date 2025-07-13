@@ -179,8 +179,7 @@ export const SignInForm = () => {
               </label>
               <Link
                 className="text-sky-400 hover:text-sky-300"
-                href="#"
-                onClick={(e) => e.preventDefault()}
+                href="/reset-password"
               >
                 Forgot password?
               </Link>
