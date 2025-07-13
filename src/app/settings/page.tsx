@@ -1,11 +1,7 @@
-import { SettingsDashboard } from "./_components/settings-dashboard";
+import { UserSettings } from "./_components/user-settings";
 
 const SettingsPage = async () => {
-  return (
-    <div className="container mx-auto px-6 lg:px-12 3xl:max-w-screen-3xl">
-      <SettingsDashboard />
-    </div>
-  );
+  return <UserSettings />;
 };
 
 export default SettingsPage;

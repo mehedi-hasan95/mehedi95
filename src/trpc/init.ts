@@ -1,4 +1,5 @@
-import { initTRPC } from "@trpc/server";
+import { getAuth } from "@/utils/getAuth";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { cache } from "react";
 export const createTRPCContext = cache(async () => {
   /**
@@ -18,5 +19,23 @@ const t = initTRPC.create({
 });
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;
+
+const middleware = t.middleware;
+const isAuth = middleware(async (opts) => {
+  const session = await getAuth();
+  if (!session?.session.token) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to access this resource.",
+    });
+  }
+  return opts.next({
+    ctx: {
+      userId: session.user.id,
+    },
+  });
+});
+
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
+export const privateProcedure = baseProcedure.use(isAuth);

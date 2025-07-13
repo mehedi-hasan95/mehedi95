@@ -20,6 +20,7 @@ export const auth = betterAuth({
   },
   account: {
     accountLinking: { enabled: false },
+    updateAccountOnSignIn: true,
   },
   plugins: [
     username(),
