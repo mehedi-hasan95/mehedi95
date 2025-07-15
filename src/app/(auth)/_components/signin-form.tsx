@@ -24,7 +24,7 @@ import { VerifyOtp } from "./verify-otp";
 export const SignInForm = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [showPw, setShowPw] = useState(false);
-  const [step, setStep] = useState<"login" | "otp" | "verify">("login");
+  const [step, setStep] = useState<"login" | "otp" | "verify" | "2FA">("login");
   const [otp, setOTP] = useState<string>("");
   const [getEmail, setGetEmail] = useState("");
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -42,16 +42,23 @@ export const SignInForm = () => {
       {
         email: values.email,
         password: values.password,
+        callbackURL: "/",
       },
       {
         onRequest: () => {
           setLoading(true);
         },
-        onSuccess: () => {
-          toast("Login success");
-          setGetEmail(values.email);
-          setLoading(false);
-          window.location.reload();
+        onSuccess: async (context) => {
+          if (context.data.twoFactorRedirect === true) {
+            setLoading(false);
+            setStep("2FA");
+            await authClient.twoFactor.sendOtp();
+          } else {
+            toast("Login success");
+            setGetEmail(values.email);
+            setLoading(false);
+            window.location.reload();
+          }
         },
         onError: (e) => {
           toast(e.error.message);
@@ -85,7 +92,7 @@ export const SignInForm = () => {
     });
   };
   const handleVerifyOtp = async () => {
-    const { data, error } = await authClient.emailOtp.verifyEmail(
+    await authClient.emailOtp.verifyEmail(
       {
         email: getEmail,
         otp: otp,
@@ -94,20 +101,37 @@ export const SignInForm = () => {
         onRequest: () => {
           setLoading(true);
         },
-        onError: () => {
+        onError: (context) => {
           setLoading(false);
+          toast(context.error.message);
         },
         onSuccess: () => {
           setLoading(false);
+          toast("User verified successfully");
         },
       }
     );
-    if (data?.status === true) {
-      toast("User verified successfully");
-      setStep("login");
-    } else {
-      toast.error(error?.message);
-    }
+  };
+
+  const handleVerify2FA = async () => {
+    await authClient.twoFactor.verifyOtp(
+      {
+        code: otp,
+      },
+      {
+        onRequest: () => {
+          setLoading(true);
+        },
+        onError: (context) => {
+          setLoading(false);
+          toast(context.error.message);
+        },
+        onSuccess: () => {
+          setLoading(false);
+          toast("Login successfully");
+        },
+      }
+    );
   };
   return (
     <>
@@ -201,6 +225,13 @@ export const SignInForm = () => {
           loading={isLoading}
           sendOtpEmail={sendOTP}
           theEmail={getEmail}
+        />
+      ) : step === "2FA" ? (
+        <VerifyOtp
+          loading={isLoading}
+          onOTP={otp}
+          setOTP={setOTP}
+          onSubmit={handleVerify2FA}
         />
       ) : (
         <VerifyOtp

@@ -100,7 +100,7 @@ export const sendEmail = async (email: string, code: string) => {
                               {${code}}
                           </div>
                           
-                          <p>This code will expire in 15 minutes. If you didn't request this code, you can safely ignore this email.</p>
+                          <p>This code will expire in 5 minutes. If you didn't request this code, you can safely ignore this email.</p>
                           
                           <p class="note">
                               For security reasons, please don't share this code with anyone. Our support team will never ask you for this information.
