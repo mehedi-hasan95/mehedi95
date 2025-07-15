@@ -7,11 +7,17 @@ import {
 import { SettingsSidebar } from "./_components/settings-sidebar/settings-sidebar";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getAuth } from "@/utils/getAuth";
+import { redirect } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
 }
 const SettingsLayout = async ({ children }: Props) => {
+  const auth = await getAuth();
+  if (!auth?.session.token) {
+    redirect("/sign-in");
+  }
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(trpc.auth.getUserSession.queryOptions());
   return (

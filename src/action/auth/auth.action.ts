@@ -26,7 +26,16 @@ export const authAction = createTRPCRouter({
     const { userId } = ctx;
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, sessions: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        image: true,
+        role: true,
+        twoFactorEnabled: true,
+        sessions: true,
+        accounts: { select: { providerId: true } },
+      },
     });
     return user;
   }),
@@ -46,11 +55,4 @@ export const authAction = createTRPCRouter({
         });
       }
     }),
-  twoFaEnable: privateProcedure.query(async ({ ctx }) => {
-    const enable = db.user.findUnique({
-      where: { id: ctx.userId },
-      select: { twoFactorEnabled: true },
-    });
-    return enable;
-  }),
 });
