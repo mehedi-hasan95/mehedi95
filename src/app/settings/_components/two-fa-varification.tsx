@@ -21,7 +21,7 @@ import { toast } from "sonner";
 
 export const TwoFaVerification = () => {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.auth.twoFaEnable.queryOptions());
+  const { data } = useSuspenseQuery(trpc.auth.getUserSession.queryOptions());
   const [is2FAEnabled, setIs2FAEnabled] = useState(data?.twoFactorEnabled);
   const [pendingToggle, setPendingToggle] = useState(false);
   const [password, setPassword] = useState("");
@@ -67,7 +67,7 @@ export const TwoFaVerification = () => {
           }
         );
       } else {
-        const { data } = await authClient.twoFactor.enable(
+        await authClient.twoFactor.enable(
           { password },
           {
             onRequest: () => {
@@ -85,7 +85,6 @@ export const TwoFaVerification = () => {
             },
           }
         );
-        console.log(data);
       }
 
       setPendingToggle(false);

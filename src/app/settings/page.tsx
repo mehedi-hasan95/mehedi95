@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 const SettingsPage = async () => {
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.auth.twoFaEnable.queryOptions());
+  void queryClient.prefetchQuery(trpc.auth.getUserSession.queryOptions());
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<p>Loading...</p>}>

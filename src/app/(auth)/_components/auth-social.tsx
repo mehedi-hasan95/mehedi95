@@ -46,6 +46,7 @@ export const AuthSocial = () => {
           <Button
             variant="outline"
             className="bg-black/30 border-sky-500/30 text-gray-200 hover:bg-blue-500/40"
+            onClick={() => auth("google")}
           >
             <svg
               className="mr-2 h-4 w-4"

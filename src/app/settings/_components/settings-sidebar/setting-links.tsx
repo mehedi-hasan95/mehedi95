@@ -32,7 +32,7 @@ export const SettingLinks = () => {
         {settingLink.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild isActive={pathName === item.url}>
-              <Link href={item.url}>
+              <Link href={item.url} prefetch>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
