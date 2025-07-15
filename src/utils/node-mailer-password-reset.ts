@@ -97,7 +97,7 @@ export const sendEmailForPasswordReset = async (
                       
                       <div class="content">
                           <p>Hello,</p>
-                          <p>Thank you for reset your password. To complete your step, please use the following verification code:</p>
+                          <p>Thank you for reset your password. To complete your step, please use the following reset code:</p>
                           
                           <div class="verification-code">
                               {${code}}

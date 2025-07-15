@@ -46,4 +46,11 @@ export const authAction = createTRPCRouter({
         });
       }
     }),
+  twoFaEnable: privateProcedure.query(async ({ ctx }) => {
+    const enable = db.user.findUnique({
+      where: { id: ctx.userId },
+      select: { twoFactorEnabled: true },
+    });
+    return enable;
+  }),
 });
