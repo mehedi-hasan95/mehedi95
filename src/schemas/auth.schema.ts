@@ -16,17 +16,6 @@ export const registerSchema = z
       .string()
       .min(2, { message: "Name must be atleast 4 characters long" }),
     email: z.string().email(),
-    username: z
-      .string()
-      .min(2, { message: "Username is required" })
-      .regex(/^(?!.*  )[A-Za-z0-9-]+$/, {
-        message: "Only letters, numbers and dash are allowed",
-      })
-      .refine(
-        (val) => !val.includes("--"),
-        "Username cannot consecutive hyphens"
-      )
-      .transform((val) => val.toLowerCase()),
     role: z.enum([userRole.admin, userRole.user]),
     password: z
       .string()

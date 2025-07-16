@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./db";
-import { username, admin, emailOTP, twoFactor } from "better-auth/plugins";
+import { admin, emailOTP, twoFactor } from "better-auth/plugins";
 import { sendEmail } from "@/utils/node-mailer";
 import { sendEmailForPasswordReset } from "@/utils/node-mailer-password-reset";
 export const auth = betterAuth({
@@ -13,22 +13,11 @@ export const auth = betterAuth({
     minPasswordLength: 4,
     requireEmailVerification: true,
   },
-  socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-    },
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    },
-  },
   account: {
     accountLinking: { enabled: false },
     updateAccountOnSignIn: true,
   },
   plugins: [
-    username(),
     admin(),
     twoFactor({
       skipVerificationOnEnable: true,

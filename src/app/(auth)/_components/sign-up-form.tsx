@@ -41,7 +41,6 @@ export const SignUpForm = () => {
     defaultValues: {
       name: "",
       email: "",
-      username: "",
       role: "user",
       password: "",
       confirmPassword: "",
@@ -57,7 +56,6 @@ export const SignUpForm = () => {
         email: values.email,
         name: values.name,
         password: values.password,
-        username: values.username,
       },
       {
         onRequest: () => {
@@ -123,23 +121,7 @@ export const SignUpForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-white">Your Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="mehedi"
-                      {...field}
-                      className="placeholder:text-muted-foreground text-gray-100"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="email"

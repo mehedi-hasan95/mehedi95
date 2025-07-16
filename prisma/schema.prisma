@@ -31,9 +31,6 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  username        String?
-  displayUsername String?
-
   role       userRole  @default(user)
   banned     Boolean?
   banReason  String?
@@ -43,7 +40,6 @@ model User {
   twofactors       TwoFactor[]
 
   @@unique([email])
-  @@unique([username])
   @@map("user")
 }
 
