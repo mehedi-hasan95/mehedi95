@@ -13,17 +13,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { registerSchema } from "@/schemas/auth.schema";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
-import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
 import { LoadingButton } from "@/components/common/loading-button";
 import { toast } from "sonner";
 import { VerifyOtp } from "./verify-otp";
@@ -41,14 +32,10 @@ export const SignUpForm = () => {
     defaultValues: {
       name: "",
       email: "",
-      role: "user",
       password: "",
       confirmPassword: "",
     },
   });
-
-  const trpc = useTRPC();
-  const updateRole = useMutation(trpc.auth.updateRole.mutationOptions());
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     const { data } = await authClient.signUp.email(
@@ -83,7 +70,6 @@ export const SignUpForm = () => {
         },
       });
       setEmail(data.user.email);
-      updateRole.mutate({ id: data.user.id, role: values.role });
     }
   }
 
@@ -140,33 +126,7 @@ export const SignUpForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-white">Select your role</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl className="text-white w-full">
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder="Select your role"
-                          className="text-white"
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="text-white bg-black hover:!bg-black">
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="password"

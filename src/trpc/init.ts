@@ -36,6 +36,23 @@ const isAuth = middleware(async (opts) => {
   });
 });
 
+const isAdmin = middleware(async (opts) => {
+  const session = await getAuth();
+  if (!session?.session.token && session?.user.role !== "admin") {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not admin.",
+    });
+  }
+  return opts.next({
+    ctx: {
+      userId: session.user.id,
+      role: session.user.role,
+    },
+  });
+});
+
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 export const privateProcedure = baseProcedure.use(isAuth);
+export const adminProcedure = baseProcedure.use(isAdmin);

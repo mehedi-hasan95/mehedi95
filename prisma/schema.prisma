@@ -15,7 +15,6 @@ datasource db {
 }
 
 enum userRole {
-  super_admin
   admin
   user
 }
@@ -98,4 +97,22 @@ model TwoFactor {
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("twoFactor")
+}
+
+model Project {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  keyChallenge   String?
+  slug           String   @unique
+  liveDemo       String
+  githubLink     String
+  technologyUsed String[]
+  isFeatured     Boolean
+  gallery        String[]
+  featuredImage  String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([slug])
 }

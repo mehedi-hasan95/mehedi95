@@ -1,4 +1,3 @@
-import { userRole } from "@/generated/prisma";
 import z from "zod";
 
 export const loginSchema = z.object({
@@ -16,7 +15,6 @@ export const registerSchema = z
       .string()
       .min(2, { message: "Name must be atleast 4 characters long" }),
     email: z.string().email(),
-    role: z.enum([userRole.admin, userRole.user]),
     password: z
       .string()
       .min(4, { message: "Your password must be atleast 4 characters long" })
@@ -49,4 +47,25 @@ export const updatePasswordSchema = z
 export const resetPasswordSchema = z.object({
   password: z.string({ message: "Password is required" }),
   otp: z.string({ message: "OTP is required" }),
+});
+
+export const createProjectSchema = z.object({
+  title: z.string().min(5, { message: "Project title is required" }),
+  description: z
+    .string()
+    .min(10, { message: "Project description is required" }),
+  keyChallenge: z
+    .string()
+    .min(10, { message: "Write your key challenge" })
+    .optional(),
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message:
+      "Invalid slug format. Use lowercase letters, numbers, and hyphens only.",
+  }),
+  liveDemo: z.string(),
+  githubLink: z.string(),
+  technologyUsed: z.array(z.string()).nonempty("Please at least one item"),
+  isFeatured: z.boolean(),
+  featuredImage: z.string(),
+  gallery: z.array(z.string()),
 });

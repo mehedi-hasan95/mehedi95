@@ -9,7 +9,7 @@ const SignIn = async () => {
       backTitle="Don't have an account? "
       headerDescription="Sign up to continue"
       headerTitle="Welcome Back"
-      showSocial
+      showSocial={false}
     >
       <SignInForm />
     </AuthWrapper>
