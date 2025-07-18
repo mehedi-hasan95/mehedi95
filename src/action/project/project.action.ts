@@ -25,7 +25,18 @@ export const projectAction = createTRPCRouter({
         keyChallenge,
         featuredImage,
         gallery,
+        challenge,
+        keyFeature,
       } = input;
+      const uniqueSlug = await db.project.findUnique({
+        where: { slug },
+      });
+      if (uniqueSlug) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Project with this slug already exists.",
+        });
+      }
       try {
         const data = await db.project.create({
           data: {
@@ -39,6 +50,17 @@ export const projectAction = createTRPCRouter({
             keyChallenge,
             featuredImage,
             gallery,
+            keyFeature,
+            challenge: {
+              createMany: {
+                data: [
+                  ...challenge.map((item) => ({
+                    challenge: item.challenge,
+                    description: item.description,
+                  })),
+                ],
+              },
+            },
           },
         });
         return data;
@@ -67,6 +89,7 @@ export const projectAction = createTRPCRouter({
           orderBy: {
             createdAt: "desc",
           },
+          include: { challenge: true },
           take: input.limit,
         });
         return projects;
@@ -81,23 +104,13 @@ export const projectAction = createTRPCRouter({
   getProjectBySlug: baseProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
-      try {
-        const project = await db.project.findUnique({
-          where: { slug: input.slug },
-        });
-        if (!project) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Project not found",
-          });
-        }
-        return project;
-      } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Internal server error",
-          cause: error,
-        });
+      const project = await db.project.findUnique({
+        where: { slug: input.slug },
+        include: { challenge: true },
+      });
+      if (!project) {
+        return null;
       }
+      return project;
     }),
 });

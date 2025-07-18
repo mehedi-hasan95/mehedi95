@@ -100,19 +100,29 @@ model TwoFactor {
 }
 
 model Project {
-  id             String   @id @default(cuid())
+  id             String      @id @default(cuid())
   title          String
   description    String
   keyChallenge   String?
-  slug           String   @unique
+  slug           String      @unique
   liveDemo       String
   githubLink     String
   technologyUsed String[]
   isFeatured     Boolean
   gallery        String[]
   featuredImage  String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  challenge      Challenge[]
+  keyFeature     String[]
 
   @@index([slug])
+}
+
+model Challenge {
+  id          String  @id @default(cuid())
+  challenge   String
+  description String
+  projectId   String
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

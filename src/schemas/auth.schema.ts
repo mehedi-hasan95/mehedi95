@@ -68,4 +68,11 @@ export const createProjectSchema = z.object({
   isFeatured: z.boolean(),
   featuredImage: z.string(),
   gallery: z.array(z.string()),
+  keyFeature: z.array(z.string().nonempty("Please add atleast one feature")),
+  challenge: z.array(
+    z.object({
+      challenge: z.string(),
+      description: z.string(),
+    })
+  ),
 });

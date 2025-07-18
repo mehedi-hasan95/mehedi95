@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,8 @@ import { LoadingButton } from "@/components/common/loading-button";
 import { ImageUpload } from "@/utils/image-upload";
 import { toast } from "sonner";
 import { projectGetAllType } from "@/constant/type.trpc";
+import { Plus, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const slugify = (str: string) =>
   str
@@ -50,8 +52,8 @@ export const CreateProject = () => {
           ...(old || []),
           newProject,
         ]);
-        toast("Project Created Successfully");
         router.push("/dashboard");
+        toast("Project Created Successfully");
         return { previousProjects };
       },
       onError: (error) => {
@@ -80,6 +82,8 @@ export const CreateProject = () => {
       technologyUsed: [],
       featuredImage: "",
       gallery: [],
+      keyFeature: [],
+      challenge: [{ challenge: "", description: "" }],
     },
   });
 
@@ -96,10 +100,32 @@ export const CreateProject = () => {
     }
   }, [title, slug, form]);
 
+  const { fields, prepend, remove } = useFieldArray({
+    // Changed append to prepend
+    control: form.control,
+    name: "challenge",
+  });
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof createProjectSchema>) {
     create.mutate(values);
   }
+  // Watch all challenge fields to determine if any are empty
+  const allChallenges = form.watch("challenge");
+  const hasEmptyChallengeFields = allChallenges.some(
+    (challengeItem) => !challengeItem.challenge || !challengeItem.description
+  );
+
+  // 4. Add new challenge (prepends to the beginning)
+  const addChallenge = () => {
+    prepend({ challenge: "", description: "" });
+  };
+
+  // 5. Remove challenge
+  const removeChallenge = (index: number) => {
+    if (fields.length > 1) {
+      remove(index);
+    }
+  };
   return (
     <div>
       <Form {...form}>
@@ -221,7 +247,7 @@ export const CreateProject = () => {
             name="technologyUsed"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Slug</FormLabel>
+                <FormLabel>Project tech</FormLabel>
                 <FormControl>
                   <TagsInput
                     value={field.value}
@@ -269,10 +295,108 @@ export const CreateProject = () => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="keyFeature"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project Features</FormLabel>
+                <FormControl>
+                  <TagsInput
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="e.g. add stripe"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Challenges Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Project Challenges</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addChallenge}
+                className="flex items-center gap-2 bg-transparent"
+                disabled={hasEmptyChallengeFields} // Disable if any challenge field is empty
+              >
+                <Plus className="h-4 w-4" />
+                Add Challenge
+              </Button>
+            </div>
+
+            {/* Dynamic Challenge Fields */}
+            {fields.map((field, index) => (
+              <Card key={field.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">
+                      Challenge {index + 1}
+                    </CardTitle>
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeChallenge(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Challenge Title */}
+                  <FormField
+                    control={form.control}
+                    name={`challenge.${index}.challenge`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Challenge Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. User Authentication"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Challenge Description */}
+                  <FormField
+                    control={form.control}
+                    name={`challenge.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Describe the challenge in detail..."
+                            className="min-h-[100px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
           {create.isPending ? (
-            <LoadingButton />
+            <LoadingButton variant={"outline"} />
           ) : (
-            <Button type="submit">Submit</Button>
+            <Button type="submit" variant={"outline"}>
+              Submit
+            </Button>
           )}
         </form>
       </Form>
