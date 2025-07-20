@@ -57,7 +57,15 @@ export const ProjectCard = ({
           <CardTitle className="text-xl text-white">{project.title}</CardTitle>
           <p className="text-gray-300 line-clamp-3">{project.description}</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          {showChallenge && (
+            <div>
+              <h4 className="font-semibold text-sm">Key Challenges:</h4>
+              <p className="text-sm text-muted-foreground line-clamp-3">
+                {project.keyChallenge}
+              </p>
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 mb-4">
             {project.technologyUsed.map((tech, techIndex) => (
               <motion.div
@@ -69,16 +77,6 @@ export const ProjectCard = ({
                 transition={{ delay: 0.5 + techIndex * 0.1 }}
               >
                 <div className="space-y-4">
-                  {showChallenge && (
-                    <div>
-                      <h4 className="font-semibold text-sm mb-2">
-                        Key Challenges:
-                      </h4>
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {project.keyChallenge}
-                      </p>
-                    </div>
-                  )}
                   <Badge
                     variant="secondary"
                     className="text-xs bg-blue-500/20 text-blue-300 border-blue-500/30"

@@ -6,6 +6,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { AnimationProvider } from "./(home)/_components/home/animation-provider";
 import { Navigation } from "./(home)/_components/home/navigation";
 import { Footer } from "@/components/common/footer";
+import { getQueryClient, trpc } from "@/trpc/server";
+import { Suspense } from "react";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,19 +31,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const queryClient = getQueryClient();
+  void queryClient.prefetchQuery(trpc.userInfo.myInfo.queryOptions());
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AnimationProvider>
-          <div className="min-h-screen flex flex-col">
-            <Navigation />
-            <main className="flex-1">
-              <TRPCReactProvider>{children}</TRPCReactProvider>
-            </main>
-            <Footer />
-          </div>
+          <TRPCReactProvider>
+            <HydrationBoundary state={dehydrate(queryClient)}>
+              <div className="min-h-screen flex flex-col">
+                <Navigation />
+                <main className="flex-1">{children}</main>
+                <Suspense fallback={<p>Loading...</p>}>
+                  <Footer />
+                </Suspense>
+              </div>
+            </HydrationBoundary>
+          </TRPCReactProvider>
         </AnimationProvider>
 
         <Toaster richColors />

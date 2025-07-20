@@ -21,13 +21,18 @@ import { Switch } from "@/components/ui/switch";
 import { TagsInput } from "@/components/ui/tags-input";
 import { useRouter } from "next/navigation";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { LoadingButton } from "@/components/common/loading-button";
 import { ImageUpload } from "@/utils/image-upload";
 import { toast } from "sonner";
 import { projectGetAllType } from "@/constant/type.trpc";
 import { Plus, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 const slugify = (str: string) =>
   str
@@ -36,22 +41,31 @@ const slugify = (str: string) =>
     .replace(/[^\w\s-]/g, "")
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
-export const CreateProject = () => {
+
+interface Props {
+  getSlug: string;
+}
+export const CreateProject = ({ getSlug }: Props) => {
   const prevTitleRef = useRef("");
   const router = useRouter();
   const trpc = useTRPC();
+  const { data } = useSuspenseQuery(
+    trpc.project.getProjectBySlug.queryOptions({ slug: getSlug })
+  );
   const queryClient = useQueryClient();
   const create = useMutation(
     trpc.project.createProject.mutationOptions({
       onMutate: async (newProject) => {
+        const queryKey = trpc.project.getAllProjects.queryKey();
         await queryClient.cancelQueries({
-          queryKey: trpc.project.getAllProjects.queryKey(),
+          queryKey: queryKey,
         });
-        const previousProjects = queryClient.getQueryData(["projects"]);
-        queryClient.setQueryData(["projects"], (old: projectGetAllType) => [
-          ...(old || []),
-          newProject,
-        ]);
+        const previousProjects =
+          queryClient.getQueryData<projectGetAllType>(queryKey);
+        queryClient.setQueryData(
+          queryKey,
+          (old) => old && { ...old, ...newProject }
+        );
         router.push("/dashboard");
         toast("Project Created Successfully");
         return { previousProjects };
@@ -67,27 +81,91 @@ export const CreateProject = () => {
     })
   );
 
+  const update = useMutation(
+    trpc.project.updateProject.mutationOptions({
+      onMutate: async (newData) => {
+        const myInfoKey = trpc.project.getAllProjects.queryKey();
+        const singleInfoKey = trpc.project.getProjectBySlug.queryKey();
+
+        // Cancel any in-flight queries for both
+        await Promise.all([
+          queryClient.cancelQueries({ queryKey: myInfoKey }),
+          queryClient.cancelQueries({ queryKey: singleInfoKey }),
+        ]);
+
+        // Snapshot previous data
+        const previousMyInfo =
+          queryClient.getQueryData<projectGetAllType>(myInfoKey);
+        const previousSingleInfo =
+          queryClient.getQueryData<projectGetAllType[1]>(singleInfoKey);
+
+        // Optimistically update both
+        queryClient.setQueryData(
+          myInfoKey,
+          (old: projectGetAllType | undefined) =>
+            old ? { ...old, ...newData } : old
+        );
+        queryClient.setQueryData(
+          singleInfoKey,
+          (old: projectGetAllType[1] | null | undefined) =>
+            old ? { ...old, ...newData } : old
+        );
+        router.push(`/dashboard`);
+        toast.success("Project update successfully");
+        return { previousMyInfo, previousSingleInfo };
+      },
+
+      onError: (error, _newData, context) => {
+        // Rollback both queries if error
+        if (context?.previousMyInfo) {
+          queryClient.setQueryData(
+            trpc.project.getAllProjects.queryKey(),
+            context.previousMyInfo
+          );
+        }
+        if (context?.previousSingleInfo) {
+          queryClient.setQueryData(
+            trpc.project.getProjectBySlug.queryKey(),
+            context.previousSingleInfo
+          );
+        }
+        toast.error(error.message);
+      },
+      onSettled: () => {
+        // Invalidate both to re-fetch fresh data
+        queryClient.invalidateQueries({
+          queryKey: trpc.project.getAllProjects.queryKey(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.project.getProjectBySlug.queryKey(),
+        });
+      },
+    })
+  );
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof createProjectSchema>>({
     mode: "onChange",
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      keyChallenge: "",
-      slug: "",
-      liveDemo: "",
-      githubLink: "",
-      isFeatured: false,
-      technologyUsed: [],
-      featuredImage: "",
-      gallery: [],
-      keyFeature: [],
-      challenge: [{ challenge: "", description: "", challengeTitle: "" }],
-      developerRole: "",
-      duration: undefined,
-      projectType: "",
-      subTitle: undefined,
+      title: data?.title || "",
+      description: data?.description || "",
+      keyChallenge: data?.keyChallenge || "",
+      slug: data?.slug || "",
+      liveDemo: data?.liveDemo || "",
+      githubLink: data?.githubLink || "",
+      isFeatured: data?.isFeatured || false,
+      technologyUsed: data?.technologyUsed || [],
+      featuredImage: data?.featuredImage || "",
+      gallery: data?.gallery || [],
+      keyFeature: data?.keyFeature || [],
+      challenge: data?.challenge || [
+        { challenge: "", description: "", challengeTitle: "" },
+      ],
+      developerRole: data?.developerRole || "",
+      duration: data?.duration || undefined,
+      projectType: data?.projectType || "",
+      subTitle: data?.subTitle || undefined,
     },
   });
 
@@ -111,7 +189,11 @@ export const CreateProject = () => {
   });
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof createProjectSchema>) {
-    create.mutate(values);
+    if (data?.id) {
+      update.mutate({ id: data?.id, createProjectSchema: values });
+    } else {
+      create.mutate(values);
+    }
   }
   // Watch all challenge fields to determine if any are empty
   const allChallenges = form.watch("challenge");
@@ -185,7 +267,6 @@ export const CreateProject = () => {
               <FormItem>
                 <FormLabel>Key challenge</FormLabel>
                 <FormControl>
-                  {/* <Input placeholder="e.g. Ecommerce website" {...field} /> */}
                   <Textarea
                     placeholder="e.g. Tell us about this project"
                     {...field}
@@ -324,12 +405,23 @@ export const CreateProject = () => {
               <FormItem>
                 <FormLabel>Featured Image</FormLabel>
                 <FormControl>
-                  <ImageUpload
-                    endPoint="featurImage"
-                    onChange={(url) => {
-                      field.onChange(url);
-                    }}
-                  />
+                  <div className="space-y-2">
+                    {field.value && (
+                      <Image
+                        src={field.value}
+                        alt="Uploaded Image"
+                        width={400}
+                        height={400}
+                        className="rounded-md h-20 w-32 aspect-video object-cover"
+                      />
+                    )}
+                    <ImageUpload
+                      endPoint="featurImage"
+                      onChange={(url) => {
+                        field.onChange(url);
+                      }}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -342,12 +434,45 @@ export const CreateProject = () => {
               <FormItem>
                 <FormLabel>Image Gallery</FormLabel>
                 <FormControl>
-                  <ImageUpload
-                    endPoint="productImage"
-                    onChange={(url) => {
-                      field.onChange(url);
-                    }}
-                  />
+                  <div className="space-y-4">
+                    {field.value?.length > 0 && (
+                      <div className="flex flex-wrap gap-4">
+                        {field.value.map((url: string, index: number) => (
+                          <div key={index} className="relative group">
+                            <Image
+                              src={url}
+                              alt={`Gallery image ${index + 1}`}
+                              width={200}
+                              height={150}
+                              className="rounded-md object-cover h-20 w-32"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = field.value.filter(
+                                  (_, i) => i !== index
+                                );
+                                field.onChange(updated);
+                              }}
+                              className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <ImageUpload
+                      endPoint="productImage"
+                      onChange={(urls) => {
+                        const currentImages = field.value || [];
+                        if (Array.isArray(urls)) {
+                          const merged = [...currentImages, ...urls];
+                          field.onChange(merged);
+                        }
+                      }}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

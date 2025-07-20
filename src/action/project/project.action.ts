@@ -123,4 +123,71 @@ export const projectAction = createTRPCRouter({
       }
       return project;
     }),
+  deleteProject: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.role !== "admin") {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You're not an admin",
+        });
+      }
+      const data = db.project.delete({ where: { id: input.id } });
+      if (!data) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Project not found",
+        });
+      }
+      return data;
+    }),
+  updateProject: adminProcedure
+    .input(z.object({ id: z.string(), createProjectSchema }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.role !== "admin") {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You're not an admin",
+        });
+      }
+      const data = await db.project.update({
+        where: { id: input.id },
+        data: {
+          description: input.createProjectSchema.description,
+          githubLink: input.createProjectSchema.githubLink,
+          isFeatured: input.createProjectSchema.isFeatured,
+          liveDemo: input.createProjectSchema.liveDemo,
+          slug: input.createProjectSchema.slug,
+          technologyUsed: input.createProjectSchema.technologyUsed,
+          title: input.createProjectSchema.title,
+          keyChallenge: input.createProjectSchema.keyChallenge,
+          featuredImage: input.createProjectSchema.featuredImage,
+          gallery: input.createProjectSchema.gallery,
+          keyFeature: input.createProjectSchema.keyFeature,
+          developerRole: input.createProjectSchema.developerRole,
+          duration: input.createProjectSchema.duration,
+          projectType: input.createProjectSchema.projectType,
+          subTitle: input.createProjectSchema.subTitle,
+          challenge: {
+            deleteMany: {},
+            createMany: {
+              data: [
+                ...input.createProjectSchema.challenge.map((item) => ({
+                  challenge: item.challenge,
+                  description: item.description,
+                  challengeTitle: item.challengeTitle,
+                })),
+              ],
+            },
+          },
+        },
+      });
+      if (!data) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+      return data;
+    }),
 });

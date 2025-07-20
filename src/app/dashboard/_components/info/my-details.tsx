@@ -18,14 +18,14 @@ export const MyDetails = () => {
         <Avatar className="h-24 w-24">
           <AvatarImage
             alt="User Avatar"
-            src={data[0].image ? data[0].image : "/placeholder.svg"}
+            src={data[0]?.image ? data[0]?.image : "/placeholder.svg"}
           />
           <AvatarFallback>MH</AvatarFallback>
         </Avatar>
         <div className="text-center">
           <CardTitle className="text-2xl font-bold">
             <Link
-              href={`/dashboard/info/${data[0].id}`}
+              href={`/dashboard/info/${data[0]?.id}`}
               className="text-muted-foreground"
             >
               Mehedi Hasan
@@ -38,11 +38,11 @@ export const MyDetails = () => {
           <div className="grid gap-1">
             <h3 className="text-lg font-semibold">Heading</h3>
 
-            {data[0].heading}
+            {data[0]?.heading}
           </div>
           <div className="grid gap-1">
             <h3 className="text-lg font-semibold">Bio</h3>
-            <p className="text-muted-foreground">{data[0].bio}</p>
+            <p className="text-muted-foreground">{data[0]?.bio}</p>
           </div>
           <Separator />
           <div className="grid gap-1">
