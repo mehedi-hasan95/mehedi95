@@ -95,7 +95,7 @@ export const ProjectDetails = ({ project }: Props) => {
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 <span className="text-gradient">{project.title}</span>
               </h1>
-              {/* <p className="text-xl text-blue-400 mb-6">{project.subtitle}</p> */}
+              <p className="text-xl text-blue-400 mb-6">{project.subTitle}</p>
               <p className="text-lg text-gray-300 mb-8 line-clamp-4">
                 {project.description}
               </p>

@@ -27,6 +27,10 @@ export const projectAction = createTRPCRouter({
         gallery,
         challenge,
         keyFeature,
+        developerRole,
+        duration,
+        projectType,
+        subTitle,
       } = input;
       const uniqueSlug = await db.project.findUnique({
         where: { slug },
@@ -51,12 +55,18 @@ export const projectAction = createTRPCRouter({
             featuredImage,
             gallery,
             keyFeature,
+            developerRole,
+            duration,
+            projectType,
+            subTitle,
+
             challenge: {
               createMany: {
                 data: [
                   ...challenge.map((item) => ({
                     challenge: item.challenge,
                     description: item.description,
+                    challengeTitle: item.challengeTitle,
                   })),
                 ],
               },

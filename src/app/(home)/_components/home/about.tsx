@@ -94,7 +94,7 @@ export function About() {
           >
             <p className="text-lg text-gray-300 mb-6">
               I&apos;m a fullstack developer with{" "}
-              <span className="text-blue-400 font-semibold">5+ years</span> of
+              <span className="text-blue-400 font-semibold">2+ years</span> of
               experience building modern web applications. I specialize in{" "}
               <span className="text-blue-400 font-semibold">Next.js</span>,
               <span className="text-blue-400 font-semibold"> React</span>, and
@@ -103,14 +103,16 @@ export function About() {
               user-friendly applications.
             </p>
             <p className="text-lg text-gray-300 mb-6">
-              My journey started with a Computer Science degree, and I&apos;ve
-              since worked with startups and established companies, helping them
-              build scalable web solutions that drive business growth.
+              As a recent graduate, I bring a fresh perspective and eagerness to
+              learn and grow in the ever-evolving tech space. My expertise spans
+              both front-end and back-end development, enabling me to create
+              seamless and efficient solutions that deliver a smooth user
+              experience
             </p>
             <p className="text-lg text-gray-300">
-              When I&apos;m not coding, you&apos;ll find me contributing to open
-              source projects, writing technical articles, or exploring the
-              latest web technologies.
+              With a strong foundation in software engineering principles, I’m
+              committed to contributing to innovative projects and making a
+              meaningful impact through clean, maintainable code.
             </p>
           </motion.div>
 

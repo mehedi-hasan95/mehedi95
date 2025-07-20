@@ -11,9 +11,14 @@ export default async function Home() {
   void queryClient.prefetchQuery(
     trpc.project.getAllProjects.queryOptions({ isFeatured: true, limit: 3 })
   );
+  void queryClient.prefetchQuery(trpc.userInfo.myInfo.queryOptions());
   return (
     <div className="space-y-20">
-      <Hero />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<p>Loading...</p>}>
+          <Hero />
+        </Suspense>
+      </HydrationBoundary>
       <About />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<p>Loading...</p>}>

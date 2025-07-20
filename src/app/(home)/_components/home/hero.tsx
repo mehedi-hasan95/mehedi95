@@ -2,12 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Download, Github, Linkedin, Mail } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { backOut, easeOut, motion } from "framer-motion";
+import { easeOut, motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { SocialLinks } from "@/components/common/social-links";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,22 +35,11 @@ const itemVariants = {
   },
 };
 
-const socialVariants = {
-  hidden: { opacity: 0, scale: 0 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      ease: backOut,
-    },
-  },
-};
-
 export function Hero() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: "-50px" });
-
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.userInfo.myInfo.queryOptions());
   return (
     <section
       className="container mx-auto px-4 py-20 md:py-32 relative overflow-hidden"
@@ -123,7 +115,7 @@ export function Hero() {
                   className="glass-effect border-blue-500/30 text-blue-400 hover:bg-blue-500/10 bg-transparent"
                 >
                   <Link
-                    href="/resume.pdf"
+                    href={data[0]?.resume || ""}
                     target="_blank"
                     className="flex items-center"
                   >
@@ -133,33 +125,7 @@ export function Hero() {
               </motion.div>
             </motion.div>
 
-            <motion.div
-              className="flex justify-center lg:justify-start space-x-6"
-              variants={containerVariants}
-            >
-              {[
-                { href: "https://github.com", icon: Github },
-                { href: "https://linkedin.com", icon: Linkedin },
-                { href: "mailto:john@example.com", icon: Mail },
-              ].map((social, index) => (
-                <motion.div
-                  key={index}
-                  variants={socialVariants}
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="glass-effect hover:bg-blue-500/20 text-blue-400"
-                  >
-                    <Link href={social.href} target="_blank">
-                      <social.icon className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </motion.div>
-              ))}
-            </motion.div>
+            <SocialLinks data={data[0]} />
           </div>
 
           {/* Right Column - Profile Image */}
@@ -184,7 +150,9 @@ export function Hero() {
               >
                 {/* Replace this with your actual image */}
                 <Image
-                  src="/placeholder.svg?height=400&width=400"
+                  src={
+                    data[0]?.image || "/placeholder.svg?height=400&width=400"
+                  }
                   alt="John Doe - Fullstack Developer"
                   width={400}
                   height={400}

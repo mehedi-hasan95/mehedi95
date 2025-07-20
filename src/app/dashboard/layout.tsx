@@ -5,11 +5,17 @@ import {
 } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "./_components/dashboard-sidebar/dashboard-sidebar";
 import { Separator } from "@/components/ui/separator";
+import { getAuth } from "@/utils/getAuth";
+import { redirect } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
 }
 const DashboardLayout = async ({ children }: Props) => {
+  const auth = await getAuth();
+  if (auth?.user.role !== "admin") {
+    redirect("/");
+  }
   return (
     <SidebarProvider>
       <DashboardSidebar />

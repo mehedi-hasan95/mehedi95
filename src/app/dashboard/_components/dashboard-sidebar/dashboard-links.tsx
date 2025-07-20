@@ -1,5 +1,5 @@
 "use client";
-import { LayoutDashboard } from "lucide-react";
+import { Info, LayoutDashboard, MessageCircleCode } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -14,6 +14,8 @@ export const DashboardLinks = () => {
   const pathName = usePathname();
   const settingLink = [
     { name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { name: "Messages", url: "/dashboard/messages", icon: MessageCircleCode },
+    { name: "User Info", url: "/dashboard/info", icon: Info },
   ];
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:block">

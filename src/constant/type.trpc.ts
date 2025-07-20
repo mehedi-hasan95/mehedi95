@@ -3,3 +3,8 @@ import { inferRouterOutputs } from "@trpc/server";
 
 export type projectGetAllType =
   inferRouterOutputs<AppRouter>["project"]["getAllProjects"];
+export type messageGetAllType =
+  inferRouterOutputs<AppRouter>["userInfo"]["allMessage"];
+
+export type userInfoGetAllType =
+  inferRouterOutputs<AppRouter>["userInfo"]["myInfo"];

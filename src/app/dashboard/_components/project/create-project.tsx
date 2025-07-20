@@ -83,7 +83,11 @@ export const CreateProject = () => {
       featuredImage: "",
       gallery: [],
       keyFeature: [],
-      challenge: [{ challenge: "", description: "" }],
+      challenge: [{ challenge: "", description: "", challengeTitle: "" }],
+      developerRole: "",
+      duration: undefined,
+      projectType: "",
+      subTitle: undefined,
     },
   });
 
@@ -117,7 +121,7 @@ export const CreateProject = () => {
 
   // 4. Add new challenge (prepends to the beginning)
   const addChallenge = () => {
-    prepend({ challenge: "", description: "" });
+    prepend({ challenge: "", description: "", challengeTitle: "" });
   };
 
   // 5. Remove challenge
@@ -192,6 +196,60 @@ export const CreateProject = () => {
               </FormItem>
             )}
           />
+          <div className="grid md:grid-cols-2 gap-5">
+            <FormField
+              control={form.control}
+              name="subTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Subtitle</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Project subtitle" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="duration"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Duration</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="e.g. 3" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="projectType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Type</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Full-Stack" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="developerRole"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Developer Role</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Lead Designer" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             control={form.control}
             name="liveDemo"
@@ -231,7 +289,7 @@ export const CreateProject = () => {
             name="isFeatured"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Slug</FormLabel>
+                <FormLabel>Featured?</FormLabel>
                 <FormControl>
                   <Switch
                     checked={field.value}
@@ -354,13 +412,29 @@ export const CreateProject = () => {
                   {/* Challenge Title */}
                   <FormField
                     control={form.control}
-                    name={`challenge.${index}.challenge`}
+                    name={`challenge.${index}.challengeTitle`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Challenge Title</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="e.g. User Authentication"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`challenge.${index}.challenge`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Challenge Face</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. What was the problem"
                             {...field}
                           />
                         </FormControl>
@@ -375,7 +449,7 @@ export const CreateProject = () => {
                     name={`challenge.${index}.description`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Challenge Solve</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Describe the challenge in detail..."

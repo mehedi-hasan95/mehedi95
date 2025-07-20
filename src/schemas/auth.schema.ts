@@ -71,8 +71,35 @@ export const createProjectSchema = z.object({
   keyFeature: z.array(z.string().nonempty("Please add atleast one feature")),
   challenge: z.array(
     z.object({
+      challengeTitle: z.string(),
       challenge: z.string(),
       description: z.string(),
     })
   ),
+  duration: z.coerce.number().positive(),
+  subTitle: z.string().optional(),
+  projectType: z.string(),
+  developerRole: z.string(),
+});
+
+export const contactSchema = z.object({
+  name: z.string().min(2, { message: "Your name is required" }),
+  email: z.string().email().min(2, { message: "Email is required" }),
+  subject: z.string().min(2, { message: "Add atleast 2 words" }).optional(),
+  message: z.string().min(2, { message: "Message is required" }),
+});
+
+export const aboutMeSchema = z.object({
+  heading: z.string(),
+  bio: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  location: z.string(),
+  github: z.string().optional(),
+  linkedin: z.string().optional(),
+  twitter: z.string().optional(),
+  fiverr: z.string().optional(),
+  upwork: z.string().optional(),
+  image: z.string().optional(),
+  resume: z.string(),
 });
