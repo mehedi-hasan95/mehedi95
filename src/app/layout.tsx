@@ -25,6 +25,59 @@ export const metadata: Metadata = {
   description:
     "I build modern web applications with Next.js, React, and cutting-edge technologies. Passionate about performance, accessibility, and exceptional user experiences.",
   authors: [{ name: "Mehedi Hasan", url: "https://mehedi95.vercel.app" }],
+  keywords: [
+    "Next.js",
+    "React",
+    "Web Development",
+    "Performance",
+    "Accessibility",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Mehedi Hasan",
+    description:
+      "I build modern web applications with Next.js, React, and cutting-edge technologies. Passionate about performance, accessibility, and exceptional user experiences.",
+    url: "https://mehedi95.vercel.app",
+    siteName: "Mehedi Hasan",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Mehedi Hasan",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mehedi Hasan",
+    description:
+      "I build modern web applications with Next.js, React, and cutting-edge technologies. Passionate about performance, accessibility, and exceptional user experiences.",
+    images: ["/og.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Mehedi Hasan",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  alternates: {
+    canonical: "https://mehedi95.vercel.app",
+    types: {
+      "application/rss+xml": "/feed.xml",
+      "application/atom+xml": "/atom.xml",
+    },
+  },
 };
 
 export default function RootLayout({

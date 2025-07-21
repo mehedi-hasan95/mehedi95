@@ -32,6 +32,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${data?.title} - Mehedi Hasan Portfolio`,
+    description: data?.description || "Explore the project details",
+    openGraph: {
+      title: `${data?.title} - Mehedi Hasan Portfolio`,
+      description: data?.description || "Explore the project details",
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/projects/${slug}`,
+      images: [
+        {
+          url: data?.featuredImage || "/og.jpg",
+          width: 1200,
+          height: 630,
+          alt: data?.title || "Mehedi Hasan Portfolio",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${data?.title} - Mehedi Hasan Portfolio`,
+      description: data?.description || "Explore the project details",
+      images: [data?.featuredImage || "/og.jpg"],
+    },
+    icons: {
+      icon: "/favicon.ico",
+      shortcut: "/favicon.ico",
+      apple: "/apple-touch-icon.png",
+    },
   };
 }
 
