@@ -68,6 +68,9 @@ export const SkillsForm = ({ id }: Props) => {
         queryClient.invalidateQueries({
           queryKey: trpc.userInfo.getSkills.queryKey(),
         });
+        queryClient.invalidateQueries({
+          queryKey: trpc.userInfo.getSkillItems.queryKey(),
+        });
       },
     })
   );
