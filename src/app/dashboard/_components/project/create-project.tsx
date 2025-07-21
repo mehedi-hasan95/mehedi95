@@ -30,9 +30,10 @@ import { LoadingButton } from "@/components/common/loading-button";
 import { ImageUpload } from "@/utils/image-upload";
 import { toast } from "sonner";
 import { projectGetAllType } from "@/constant/type.trpc";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { Separator } from "@/components/ui/separator";
 
 const slugify = (str: string) =>
   str
@@ -143,6 +144,35 @@ export const CreateProject = ({ getSlug }: Props) => {
     })
   );
 
+  // delete project
+  const deleteProject = useMutation(
+    trpc.project.deleteProject.mutationOptions({
+      onMutate: async (newProject) => {
+        const queryKey = trpc.project.getAllProjects.queryKey();
+        await queryClient.cancelQueries({
+          queryKey: queryKey,
+        });
+        const previousProjects =
+          queryClient.getQueryData<projectGetAllType>(queryKey);
+        queryClient.setQueryData(
+          queryKey,
+          (old) => old && { ...old, ...newProject }
+        );
+        router.push("/dashboard");
+        toast("Project delete Successfully");
+        return { previousProjects };
+      },
+      onError: (error) => {
+        toast(error.message);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.project.getAllProjects.queryKey(),
+        });
+      },
+    })
+  );
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof createProjectSchema>>({
     mode: "onChange",
@@ -214,6 +244,21 @@ export const CreateProject = ({ getSlug }: Props) => {
   };
   return (
     <div>
+      {data?.id && (
+        <>
+          <div className="flex justify-between items-center py-5">
+            <h2 className="text-2xl text-blue-400">Update or delete project</h2>
+            <Button
+              variant={"destructive"}
+              onClick={() => deleteProject.mutate({ id: data.id })}
+            >
+              <Trash />
+              Delete
+            </Button>
+          </div>
+          <Separator className="mb-5" />
+        </>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField

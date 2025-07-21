@@ -1,5 +1,10 @@
 "use client";
-import { Info, LayoutDashboard, MessageCircleCode } from "lucide-react";
+import {
+  Info,
+  LayoutDashboard,
+  MessageCircleCode,
+  ToolCase,
+} from "lucide-react";
 
 import {
   SidebarGroup,
@@ -16,6 +21,7 @@ export const DashboardLinks = () => {
     { name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { name: "Messages", url: "/dashboard/messages", icon: MessageCircleCode },
     { name: "User Info", url: "/dashboard/info", icon: Info },
+    { name: "User Skills", url: "/dashboard/skills", icon: ToolCase },
   ];
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:block">

@@ -21,8 +21,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MehediFi-Better auth",
-  description: "Mehedi is my owner",
+  title: "Mehedi Hasan",
+  description:
+    "I build modern web applications with Next.js, React, and cutting-edge technologies. Passionate about performance, accessibility, and exceptional user experiences.",
   authors: [{ name: "Mehedi Hasan", url: "https://mehedi95.vercel.app" }],
 };
 

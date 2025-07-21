@@ -12,6 +12,7 @@ export default async function Home() {
     trpc.project.getAllProjects.queryOptions({ isFeatured: true, limit: 3 })
   );
   void queryClient.prefetchQuery(trpc.userInfo.myInfo.queryOptions());
+  void queryClient.prefetchQuery(trpc.userInfo.getSkillItems.queryOptions());
   return (
     <div className="space-y-20">
       <HydrationBoundary state={dehydrate(queryClient)}>
@@ -25,7 +26,11 @@ export default async function Home() {
           <FeaturedProjects />
         </Suspense>
       </HydrationBoundary>
-      <Skills />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<p>Loading...</p>}>
+          <Skills />
+        </Suspense>
+      </HydrationBoundary>
     </div>
   );
 }

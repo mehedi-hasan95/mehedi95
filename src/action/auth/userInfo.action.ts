@@ -1,5 +1,9 @@
 import { db } from "@/lib/db";
-import { aboutMeSchema, contactSchema } from "@/schemas/auth.schema";
+import {
+  aboutMeSchema,
+  contactSchema,
+  skillsSchema,
+} from "@/schemas/auth.schema";
 import { adminProcedure, baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -120,4 +124,134 @@ export const userInfoAction = createTRPCRouter({
         });
       }
     }),
+  createSkills: adminProcedure
+    .input(skillsSchema)
+    .mutation(async ({ ctx, input }) => {
+      console.log(input);
+      try {
+        if (ctx.role !== "admin") {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "You're not an Admin",
+          });
+        }
+        const data = await db.allSkill.create({
+          data: {
+            SkillItems: {
+              create: input.skills.map((skill) => ({
+                title: skill.title,
+                skills: skill.skill,
+              })),
+            },
+          },
+        });
+        return data;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  getSkills: baseProcedure.query(async () => {
+    try {
+      const data = await db.allSkill.findMany({
+        include: { SkillItems: true },
+      });
+      return data;
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong",
+        cause: error,
+      });
+    }
+  }),
+  getSingeSkill: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        if (ctx.role !== "admin") {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "You're not an Admin",
+          });
+        }
+        const data = await db.allSkill.findUnique({
+          where: { id: input.id },
+          select: { SkillItems: true, id: true },
+        });
+        return data;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  updateSkills: adminProcedure
+    .input(z.object({ id: z.string(), skillsSchema }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.role !== "admin") {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You're not an Admin",
+        });
+      }
+      try {
+        const { id, skillsSchema } = input;
+        const existing = await db.allSkill.findUnique({
+          where: { id },
+        });
+
+        if (!existing) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "AllSkill entry not found",
+          });
+        }
+
+        // Delete all existing SkillItems
+        await db.skillItems.deleteMany({
+          where: { skilId: id },
+        });
+
+        const updated = await db.allSkill.update({
+          where: { id: id },
+          data: {
+            SkillItems: {
+              create: skillsSchema.skills.map((item) => ({
+                title: item.title,
+                skills: item.skill,
+              })),
+            },
+          },
+          include: {
+            SkillItems: true,
+          },
+        });
+
+        return updated;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+          cause: error,
+        });
+      }
+    }),
+  getSkillItems: baseProcedure.query(async () => {
+    try {
+      const data = await db.skillItems.findMany();
+      return data;
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong",
+        cause: error,
+      });
+    }
+  }),
 });

@@ -159,3 +159,18 @@ model UserInfo {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
+
+model AllSkill {
+  id         String       @id @default(cuid())
+  updatedAt  DateTime     @updatedAt
+  createdAt  DateTime     @default(now())
+  SkillItems SkillItems[]
+}
+
+model SkillItems {
+  id       String   @id @default(uuid())
+  title    String
+  skills   String[]
+  skilId   String
+  allSkill AllSkill @relation(fields: [skilId], references: [id], onDelete: Cascade)
+}

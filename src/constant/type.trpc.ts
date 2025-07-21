@@ -8,3 +8,5 @@ export type messageGetAllType =
 
 export type userInfoGetAllType =
   inferRouterOutputs<AppRouter>["userInfo"]["myInfo"];
+export type userSkillsType =
+  inferRouterOutputs<AppRouter>["userInfo"]["getSkills"];

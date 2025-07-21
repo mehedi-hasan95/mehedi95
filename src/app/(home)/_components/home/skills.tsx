@@ -6,67 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { m, AnimatePresence, spring } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
-
-const skillCategories = {
-  frontend: {
-    title: "Frontend",
-    skills: [
-      "Next.js",
-      "React",
-      "TypeScript",
-      "JavaScript",
-      "Tailwind CSS",
-      "Framer Motion",
-      "React Query",
-      "Zustand",
-      "HTML5",
-      "CSS3",
-    ],
-  },
-  backend: {
-    title: "Backend",
-    skills: [
-      "Node.js",
-      "Express.js",
-      "Next.js API Routes",
-      "Prisma",
-      "tRPC",
-      "REST APIs",
-      "GraphQL",
-      "WebSockets",
-      "Serverless Functions",
-    ],
-  },
-  database: {
-    title: "Database",
-    skills: [
-      "PostgreSQL",
-      "MongoDB",
-      "Supabase",
-      "Firebase",
-      "Redis",
-      "Prisma ORM",
-      "Mongoose",
-      "SQL",
-      "Database Design",
-    ],
-  },
-  devops: {
-    title: "DevOps & Tools",
-    skills: [
-      "Vercel",
-      "Docker",
-      "GitHub Actions",
-      "AWS",
-      "Git",
-      "Jest",
-      "Playwright",
-      "ESLint",
-      "Prettier",
-      "Webpack",
-    ],
-  },
-};
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -93,10 +34,16 @@ const badgeVariants = {
 };
 
 export function Skills() {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.userInfo.getSkillItems.queryOptions());
+
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: "-100px" });
-  const [activeTab, setActiveTab] = useState("frontend");
+  const [activeTab, setActiveTab] = useState(data[0]?.title);
 
+  if (!data.length) {
+    return <h2>No Skills are add</h2>;
+  }
   return (
     <section className="container mx-auto px-4 py-20" ref={ref}>
       <div className="max-w-4xl mx-auto">
@@ -128,21 +75,21 @@ export function Skills() {
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-4">
-              {Object.entries(skillCategories).map(([key, category]) => (
+              {data.map((item) => (
                 <TabsTrigger
-                  key={key}
-                  value={key}
+                  key={item.id}
+                  value={item.title}
                   className="text-xs sm:text-sm"
                 >
-                  {category.title}
+                  {item.title}
                 </TabsTrigger>
               ))}
             </TabsList>
 
             <AnimatePresence mode="wait">
-              {Object.entries(skillCategories).map(([key, category]) => (
-                <TabsContent key={key} value={key}>
-                  {activeTab === key && (
+              {data.map((skill) => (
+                <TabsContent key={skill.id} value={skill.title}>
+                  {activeTab === skill.title && (
                     <m.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -151,7 +98,7 @@ export function Skills() {
                     >
                       <Card>
                         <CardHeader>
-                          <CardTitle>{category.title} Technologies</CardTitle>
+                          <CardTitle>{skill.title} Technologies</CardTitle>
                         </CardHeader>
                         <CardContent>
                           <m.div
@@ -160,7 +107,7 @@ export function Skills() {
                             initial="hidden"
                             animate="visible"
                           >
-                            {category.skills.map((skill) => (
+                            {skill.skills.map((skill) => (
                               <m.div
                                 key={skill}
                                 variants={badgeVariants}

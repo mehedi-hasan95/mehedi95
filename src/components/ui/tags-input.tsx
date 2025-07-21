@@ -118,12 +118,12 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
 
     React.useEffect(() => {
       const VerifyDisable = () => {
-        if (value.length - 1 >= parseMinItems) {
+        if (value?.length - 1 >= parseMinItems) {
           setDisableButton(false);
         } else {
           setDisableButton(true);
         }
-        if (value.length + 1 <= parseMaxItems) {
+        if (value?.length + 1 <= parseMaxItems) {
           setDisableInput(false);
         } else {
           setDisableInput(true);
@@ -262,7 +262,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
             className
           )}
         >
-          {value.map((item, index) => (
+          {value?.map((item, index) => (
             <Badge
               tabIndex={activeIndex !== -1 ? 0 : activeIndex}
               key={item}

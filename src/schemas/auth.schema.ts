@@ -103,3 +103,14 @@ export const aboutMeSchema = z.object({
   image: z.string().optional(),
   resume: z.string(),
 });
+
+export const skillsSchema = z.object({
+  skills: z.array(
+    z.object({
+      title: z.string(),
+      skill: z.array(z.string()).refine((arr) => arr.length > 0, {
+        message: "Please add at least one skill",
+      }),
+    })
+  ),
+});
