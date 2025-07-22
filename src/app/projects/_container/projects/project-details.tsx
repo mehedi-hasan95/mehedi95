@@ -104,7 +104,7 @@ export const ProjectDetails = ({ project }: Props) => {
               <div className="grid grid-cols-3 gap-4 mb-8">
                 <div className="flex items-center space-x-2 text-gray-300">
                   <Calendar className="h-4 w-4 text-blue-400" />
-                  <span className="text-sm">{project.description} Months</span>
+                  <span className="text-sm">{project.duration} Months</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-300">
                   <User className="h-4 w-4 text-blue-400" />

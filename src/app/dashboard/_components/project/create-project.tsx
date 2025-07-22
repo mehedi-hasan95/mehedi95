@@ -289,12 +289,24 @@ export const CreateProject = ({ getSlug }: Props) => {
           />
           <FormField
             control={form.control}
+            name="subTitle"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project Subtitle</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. Project subtitle" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Name</FormLabel>
+                <FormLabel>Project Description</FormLabel>
                 <FormControl>
-                  {/* <Input placeholder="e.g. Ecommerce website" {...field} /> */}
                   <Textarea
                     placeholder="e.g. Tell us about this project"
                     {...field}
@@ -322,20 +334,7 @@ export const CreateProject = ({ getSlug }: Props) => {
               </FormItem>
             )}
           />
-          <div className="grid md:grid-cols-2 gap-5">
-            <FormField
-              control={form.control}
-              name="subTitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Subtitle</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Project subtitle" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             <FormField
               control={form.control}
               name="duration"
@@ -375,57 +374,58 @@ export const CreateProject = ({ getSlug }: Props) => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="liveDemo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Site URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. website address"
+                      type="url"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="githubLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Github link</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. ecommerce-website"
+                      type="url"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Featured?</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <FormField
-            control={form.control}
-            name="liveDemo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Site URL</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g. website address"
-                    type="url"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="githubLink"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Github link</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g. ecommerce-website"
-                    type="url"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="isFeatured"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Featured?</FormLabel>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
           <FormField
             control={form.control}
             name="technologyUsed"

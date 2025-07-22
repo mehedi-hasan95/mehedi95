@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { LoadingButton } from "@/components/common/loading-button";
 import { ImageUpload } from "@/utils/image-upload";
 import { userInfoGetAllType } from "@/constant/type.trpc";
+import Image from "next/image";
 
 interface Props {
   id: string;
@@ -308,14 +309,25 @@ export const CreateInfoForm = ({ id }: Props) => {
             name="image"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>upwork</FormLabel>
+                <FormLabel>Your Image</FormLabel>
                 <FormControl>
-                  <ImageUpload
-                    endPoint="featurImage"
-                    onChange={(url) => {
-                      field.onChange(url);
-                    }}
-                  />
+                  <div className="space-y-3">
+                    {field.value && (
+                      <Image
+                        src={field.value}
+                        alt="Uploaded Image"
+                        width={400}
+                        height={400}
+                        className="rounded-md h-20 w-32 aspect-video object-cover"
+                      />
+                    )}
+                    <ImageUpload
+                      endPoint="featurImage"
+                      onChange={(url) => {
+                        field.onChange(url);
+                      }}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
