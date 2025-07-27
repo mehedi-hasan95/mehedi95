@@ -105,12 +105,8 @@ export const aboutMeSchema = z.object({
 });
 
 export const skillsSchema = z.object({
-  skills: z.array(
-    z.object({
-      title: z.string(),
-      skill: z.array(z.string()).refine((arr) => arr.length > 0, {
-        message: "Please add at least one skill",
-      }),
-    })
-  ),
+  title: z.string(),
+  skill: z.array(z.string()).refine((arr) => arr.length > 0, {
+    message: "Please add at least one skill",
+  }),
 });

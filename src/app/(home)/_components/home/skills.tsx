@@ -35,7 +35,7 @@ const badgeVariants = {
 
 export function Skills() {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.userInfo.getSkillItems.queryOptions());
+  const { data } = useSuspenseQuery(trpc.userInfo.getSkills.queryOptions());
 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: "-100px" });

@@ -127,7 +127,6 @@ export const userInfoAction = createTRPCRouter({
   createSkills: adminProcedure
     .input(skillsSchema)
     .mutation(async ({ ctx, input }) => {
-      console.log(input);
       try {
         if (ctx.role !== "admin") {
           throw new TRPCError({
@@ -135,14 +134,11 @@ export const userInfoAction = createTRPCRouter({
             message: "You're not an Admin",
           });
         }
-        const data = await db.allSkill.create({
+        console.log(input);
+        const data = await db.skills.create({
           data: {
-            SkillItems: {
-              create: input.skills.map((skill) => ({
-                title: skill.title,
-                skills: skill.skill,
-              })),
-            },
+            title: input.title,
+            skills: input.skill,
           },
         });
         return data;
@@ -156,8 +152,10 @@ export const userInfoAction = createTRPCRouter({
     }),
   getSkills: baseProcedure.query(async () => {
     try {
-      const data = await db.allSkill.findMany({
-        include: { SkillItems: true },
+      const data = await db.skills.findMany({
+        orderBy: {
+          createdAt: "asc",
+        },
       });
       return data;
     } catch (error) {
@@ -178,9 +176,8 @@ export const userInfoAction = createTRPCRouter({
             message: "You're not an Admin",
           });
         }
-        const data = await db.allSkill.findUnique({
+        const data = await db.skills.findUnique({
           where: { id: input.id },
-          select: { SkillItems: true, id: true },
         });
         return data;
       } catch (error) {
@@ -202,7 +199,7 @@ export const userInfoAction = createTRPCRouter({
       }
       try {
         const { id, skillsSchema } = input;
-        const existing = await db.allSkill.findUnique({
+        const existing = await db.skills.findUnique({
           where: { id },
         });
 
@@ -213,23 +210,16 @@ export const userInfoAction = createTRPCRouter({
           });
         }
 
-        // Delete all existing SkillItems
-        await db.skillItems.deleteMany({
-          where: { skilId: id },
-        });
+        // // Delete all existing SkillItems
+        // await db.skills.delete({
+        //   where: { id },
+        // });
 
-        const updated = await db.allSkill.update({
+        const updated = await db.skills.update({
           where: { id: id },
           data: {
-            SkillItems: {
-              create: skillsSchema.skills.map((item) => ({
-                title: item.title,
-                skills: item.skill,
-              })),
-            },
-          },
-          include: {
-            SkillItems: true,
+            title: skillsSchema.title,
+            skills: skillsSchema.skill,
           },
         });
 
@@ -242,16 +232,4 @@ export const userInfoAction = createTRPCRouter({
         });
       }
     }),
-  getSkillItems: baseProcedure.query(async () => {
-    try {
-      const data = await db.skillItems.findMany();
-      return data;
-    } catch (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Something went wrong",
-        cause: error,
-      });
-    }
-  }),
 });

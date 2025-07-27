@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { getQueryClient, trpc } from "@/trpc/server";
 import Link from "next/link";
 import { SkillCard } from "./_components/skill-card";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Suspense } from "react";
 
 const SkillsPage = async () => {
   const queryClient = await getQueryClient();
@@ -16,7 +18,11 @@ const SkillsPage = async () => {
         </Button>
       </div>
       <Separator />
-      <SkillCard />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<p>Loading...</p>}>
+          <SkillCard />
+        </Suspense>
+      </HydrationBoundary>
     </div>
   );
 };

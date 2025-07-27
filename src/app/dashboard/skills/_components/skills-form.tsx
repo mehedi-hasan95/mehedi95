@@ -1,9 +1,7 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,24 +13,22 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { skillsSchema } from "@/schemas/auth.schema";
-import { Plus, Trash2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TagsInput } from "@/components/ui/tags-input";
 import { useTRPC } from "@/trpc/client";
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { LoadingButton } from "@/components/common/loading-button";
-import { useRouter } from "next/navigation";
+import { skillsSchema } from "@/schemas/auth.schema";
+import { TagsInput } from "@/components/ui/tags-input";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { LoadingButton } from "@/components/common/loading-button";
+import { userSkillsType } from "@/constant/type.trpc";
 
 interface Props {
   id: string;
 }
-
 export const SkillsForm = ({ id }: Props) => {
   const router = useRouter();
   const trpc = useTRPC();
@@ -41,168 +37,138 @@ export const SkillsForm = ({ id }: Props) => {
     trpc.userInfo.getSingeSkill.queryOptions({ id })
   );
 
-  const create = useMutation(
-    trpc.userInfo.createSkills.mutationOptions({
-      onSuccess: () => {
-        router.push("/dashboard/skills");
-      },
-      onError: (error) => {
-        toast(error.message);
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.userInfo.getSkills.queryKey(),
-        });
-      },
-    })
-  );
-  const update = useMutation(
-    trpc.userInfo.updateSkills.mutationOptions({
-      onSuccess: () => {
-        router.push("/dashboard/skills");
-      },
-      onError: (error) => {
-        toast(error.message);
-      },
-      onSettled: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.userInfo.getSkills.queryKey(),
-        });
-        queryClient.invalidateQueries({
-          queryKey: trpc.userInfo.getSkillItems.queryKey(),
-        });
-      },
-    })
-  );
-
-  // 🧠 Memoize defaultValues from server data
-  const defaultValues = useMemo(() => {
-    return {
-      skills: data?.SkillItems?.length
-        ? data.SkillItems.map((item) => ({
-            title: item.title,
-            skill: item.skills,
-          }))
-        : [{ title: "", skill: [] }],
-    };
-  }, [data]);
-
+  // 1. Define your form.
   const form = useForm<z.infer<typeof skillsSchema>>({
     resolver: zodResolver(skillsSchema),
-    defaultValues,
+    defaultValues: {
+      title: data?.title || "",
+      skill: data?.skills || [],
+    },
   });
 
-  const { fields, prepend, remove } = useFieldArray({
-    control: form.control,
-    name: "skills",
-  });
+  // Create Skills
+  const create = useMutation(
+    trpc.userInfo.createSkills.mutationOptions({
+      onMutate: async (newSkills) => {
+        const queryKey = trpc.userInfo.getSkills.queryKey();
+        await queryClient.cancelQueries({
+          queryKey: queryKey,
+        });
+        const previousSkills = queryClient.getQueryData(queryKey);
+        queryClient.setQueryData(
+          queryKey,
+          (old) => old && { ...old, ...newSkills }
+        );
+        router.push("/dashboard/skills");
+        toast("Skills sent successfully");
+        return { previousSkills };
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.userInfo.getSkills.queryKey(),
+        });
+      },
+    })
+  );
 
-  const onSubmit = (values: z.infer<typeof skillsSchema>) => {
+  // update skills
+  const update = useMutation(
+    trpc.userInfo.updateSkills.mutationOptions({
+      onMutate: async (newData) => {
+        const myInfoKey = trpc.userInfo.getSkills.queryKey();
+        const singleInfoKey = trpc.userInfo.getSingeSkill.queryKey();
+
+        // Cancel any in-flight queries for both
+        await Promise.all([
+          queryClient.cancelQueries({ queryKey: myInfoKey }),
+          queryClient.cancelQueries({ queryKey: singleInfoKey }),
+        ]);
+
+        // Snapshot previous data
+        const previousSkills =
+          queryClient.getQueryData<userSkillsType>(myInfoKey);
+        const previousSingleSkill =
+          queryClient.getQueryData<userSkillsType[1]>(singleInfoKey);
+
+        // Optimistically update both
+        queryClient.setQueryData(myInfoKey, (old: userSkillsType | undefined) =>
+          old ? { ...old, ...newData } : old
+        );
+        queryClient.setQueryData(
+          singleInfoKey,
+          (old: userSkillsType[1] | null | undefined) =>
+            old ? { ...old, ...newData } : old
+        );
+        router.push(`/dashboard/skills`);
+        toast.success("Skills update successfully");
+        return { previousSkills, previousSingleSkill };
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.userInfo.getSkills.queryKey(),
+        });
+      },
+    })
+  );
+  // 2. Define a submit handler.
+  function onSubmit(values: z.infer<typeof skillsSchema>) {
     if (data?.id) {
       update.mutate({ id: data.id, skillsSchema: values });
     } else {
       create.mutate(values);
     }
-  };
-
-  const allSkills = form.watch("skills");
-  const hasEmptySkillsFields = allSkills.some(
-    (skillItem) => !skillItem.skill.length || !skillItem.title
-  );
-
-  const addSkill = () => {
-    prepend({ title: "", skill: [] });
-  };
-
-  const removeSkill = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
-    }
-  };
-
+  }
   return (
     <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Your Skills</h3>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addSkill}
-                className="flex items-center gap-2 bg-transparent"
-                disabled={hasEmptySkillsFields}
-              >
-                <Plus className="h-4 w-4" />
-                Add Skills
-              </Button>
-            </div>
-
-            {fields.map((field, index) => (
-              <Card key={field.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">
-                      Skill {index + 1}
-                    </CardTitle>
-                    {fields.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeSkill(index)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name={`skills.${index}.title`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Skill Title</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g. Frontend Development"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Skill Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Frontend" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="skill"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project Features</FormLabel>
+                <FormControl>
+                  <TagsInput
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="e.g. add Next.Js"
                   />
-                  <FormField
-                    control={form.control}
-                    name={`skills.${index}.skill`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>All Skill</FormLabel>
-                        <FormControl>
-                          <TagsInput
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder="e.g. enter your used tech"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {create.isPending || update.isPending ? (
-            <LoadingButton />
+            <LoadingButton
+              variant={"outline"}
+              className="bg-blue-600 hover:bg-blue-700"
+            />
           ) : (
-            <Button type="submit" disabled={hasEmptySkillsFields}>
+            <Button
+              type="submit"
+              variant={"outline"}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               Submit
             </Button>
           )}

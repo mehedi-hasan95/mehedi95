@@ -12,7 +12,7 @@ export default async function Home() {
     trpc.project.getAllProjects.queryOptions({ isFeatured: true, limit: 3 })
   );
   void queryClient.prefetchQuery(trpc.userInfo.myInfo.queryOptions());
-  void queryClient.prefetchQuery(trpc.userInfo.getSkillItems.queryOptions());
+  void queryClient.prefetchQuery(trpc.userInfo.getSkills.queryOptions());
   return (
     <div className="space-y-20">
       <HydrationBoundary state={dehydrate(queryClient)}>
