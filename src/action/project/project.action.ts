@@ -74,6 +74,11 @@ export const projectAction = createTRPCRouter({
             },
           },
         });
+        revalidatePath("/");
+        revalidatePath("/projects");
+        revalidatePath(`/projects/${data.slug}`);
+        revalidatePath(`/dashboard/${data.slug}`);
+        revalidatePath(`/dashboard`);
         return data;
       } catch (error) {
         throw new TRPCError({
@@ -192,6 +197,8 @@ export const projectAction = createTRPCRouter({
       revalidatePath("/");
       revalidatePath("/projects");
       revalidatePath(`/projects/${data.slug}`);
+      revalidatePath(`/dashboard`);
+      revalidatePath(`/dashboard/${data.slug}`);
       return data;
     }),
 });
