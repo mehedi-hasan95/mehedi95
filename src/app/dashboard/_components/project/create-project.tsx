@@ -74,6 +74,11 @@ export const CreateProject = ({ getSlug }: Props) => {
       onError: (error) => {
         toast(error.message);
       },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.project.getAllProjects.queryKey(),
+        });
+      },
       onSettled: () => {
         queryClient.invalidateQueries({
           queryKey: trpc.project.getAllProjects.queryKey(),
@@ -131,6 +136,14 @@ export const CreateProject = ({ getSlug }: Props) => {
           );
         }
         toast.error(error.message);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.project.getAllProjects.queryKey(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.project.getProjectBySlug.queryKey(),
+        });
       },
       onSettled: () => {
         // Invalidate both to re-fetch fresh data
