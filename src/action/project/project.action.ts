@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { createProjectSchema } from "@/schemas/auth.schema";
 import { adminProcedure, baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
+import { revalidatePath } from "next/cache";
 import z from "zod";
 
 export const projectAction = createTRPCRouter({
@@ -188,6 +189,9 @@ export const projectAction = createTRPCRouter({
           message: "Project not found",
         });
       }
+      revalidatePath("/");
+      revalidatePath("/projects");
+      revalidatePath(`/projects/${data.slug}`);
       return data;
     }),
 });
