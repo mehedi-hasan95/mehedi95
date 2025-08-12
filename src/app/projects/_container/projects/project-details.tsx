@@ -16,11 +16,13 @@ import Link from "next/link";
 import { useRef } from "react";
 import { ProjectCarousel } from "./project-carousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 interface Props {
   project: projectGetAllType[1];
 }
 export const ProjectDetails = ({ project }: Props) => {
+  const router = useRouter();
   const heroRef = useRef(null);
   const detailsRef = useRef(null);
   const challengesRef = useRef(null);
@@ -76,10 +78,10 @@ export const ProjectDetails = ({ project }: Props) => {
               className="glass-effect border-blue-500/30 text-blue-400 hover:bg-blue-500/10 bg-transparent"
               asChild
             >
-              <Link href="/projects">
+              <Button onClick={() => router.back()}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Projects
-              </Link>
+              </Button>
             </Button>
           </motion.div>
 
